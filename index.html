@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TTS Matematika</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f3ff;
+  color: #252b48;
+}
+
+header {
+  background: linear-gradient(135deg,#6256d9,#9288ff);
+  color: white;
+  text-align: center;
+  padding: 30px 15px;
+  border-radius: 0 0 28px 28px;
+}
+
+header h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+}
+
+.container {
+  max-width: 950px;
+  margin: 25px auto;
+  padding: 15px;
+}
+
+.info {
+  background: white;
+  padding: 18px;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.score {
+  color: #6256d9;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px #00000010;
+}
+
+h2 {
+  color: #6256d9;
+  font-size: 19px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-width: 400px;
+  margin: 15px auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  background: #e6e5f8;
+  border: 1px solid #aaa5e5;
+  border-radius: 5px;
+  position: relative;
+}
+
+.cell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: bold;
+  color: #5146b9;
+  background: transparent;
+  padding: 0;
+}
+
+.cell.black {
+  background: #30324b;
+  border-color: #30324b;
+}
+
+.cell .number {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 9px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cell input:focus {
+  background: #d6d1ff;
+  border-radius: 5px;
+}
+
+.questions p {
+  background: #f3f1ff;
+  padding: 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+button {
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 5px;
+  background: #6256d9;
+  color: white;
+}
+
+button:hover {
+  opacity: .85;
+}
+
+.secondary {
+  background: #e8e6ff;
+  color: #5146b9;
+}
+
+#message {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+@media(max-width:650px) {
+  .game {
+    grid-template-columns: 1fr;
+  }
+
+  header h1 {
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🧩 Teka-Teki Matematika</h1>
+  <p>Belajar Matematika Jadi Lebih Seru!</p>
+</header>
+
+<div class="container">
+
+  <div class="info">
+    <h2>Selamat Datang di Math Crossword!</h2>
+    <p>Isi kotak kosong berdasarkan petunjuk mendatar dan menurun.</p>
+    <div class="score">
+      Skor: <span id="score">0</span> / 10
+    </div>
+  </div>
+
+  <div class="game">
+
+    <div class="card">
+      <h2>🧩 Papan Teka-Teki</h2>
+      <div class="grid" id="grid"></div>
+
+      <div style="text-align:center">
+        <button onclick="checkAnswers()">Periksa Jawaban</button>
+        <button class="secondary" onclick="resetGame()">Ulangi</button>
+      </div>
+
+      <p id="message"></p>
+    </div>
+
+    <div class="card questions">
+      <h2>➡️ Mendatar</h2>
+      <p><b>1.</b> Hasil dari 5 × 4 adalah (4 huruf).</p>
+      <p><b>2.</b> Bangun datar yang memiliki tiga sisi (8 huruf).</p>
+      <p><b>3.</b> Hasil dari 100 ÷ 10 (4 huruf).</p>
+      <p><b>4.</b> Bilangan yang habis dibagi dua disebut bilangan ... (4 huruf).</p>
+
+      <h2>⬇️ Menurun</h2>
+      <p><b>5.</b> Hasil dari 7 + 5 (5 huruf).</p>
+      <p><b>6.</b> Bangun datar yang memiliki empat sisi sama panjang (9 huruf).</p>
+      <p><b>7.</b> Ilmu yang mempelajari angka dan perhitungan (10 huruf).</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Jawaban disusun dalam posisi mendatar dan menurun.
+const answers = [
+  {word:"DUAPULUH", row:0, col:0, dir:"H"},
+  {word:"SEGITIGA", row:2, col:0, dir:"H"},
+  {word:"SEPULUH", row:4, col:0, dir:"H"},
+  {word:"GENAP", row:6, col:0, dir:"H"},
+  {word:"DUABELAS", row:0, col:2, dir:"V"},
+  {word:"PERSEGI", row:0, col:4, dir:"V"},
+  {word:"MATEMATIKA", row:0, col:6, dir:"V"}
+];
+
+// Peta papan dibentuk dari posisi jawaban.
+const cells = {};
+const numbers = {};
+
+answers.forEach((a,i) => {
+  let r=a.row, c=a.col;
+  const key = r+","+c;
+  numbers[key] = i+1;
+
+  for(let letter of a.word) {
+    const k=r+","+c;
+    if(!cells[k]) cells[k]=[];
+    cells[k].push(letter);
+
+    if(a.dir==="H") c++;
+    else r++;
+  }
+});
+
+const grid=document.getElementById("grid");
+
+for(let r=0;r<10;r++) {
+  for(let c=0;c<8;c++) {
+    const key=r+","+c;
+    const div=document.createElement("div");
+
+    if(cells[key]) {
+      div.className="cell";
+
+      if(numbers[key]) {
+        const number=document.createElement("span");
+        number.className="number";
+        number.textContent=numbers[key];
+        div.appendChild(number);
+      }
+
+      const input=document.createElement("input");
+      input.maxLength=1;
+      input.dataset.key=key;
+      input.autocomplete="off";
+      input.addEventListener("input",()=>{
+        input.value=input.value.toUpperCase().replace(/[^A-Z]/g,"");
+      });
+      div.appendChild(input);
+    } else {
+      div.className="cell black";
+    }
+
+    grid.appendChild(div);
+  }
+}
+
+function checkAnswers() {
+  let correct=0;
+
+  answers.forEach(a=>{
+    let r=a.row,c=a.col;
+    let result="";
+
+    for(let i=0;i<a.word.length;i++) {
+      const input=document.querySelector(
+        `input[data-key="${r+","+c}"]`
+      );
+      result+=input ? input.value.toUpperCase() : "";
+
+      if(a.dir==="H") c++;
+      else r++;
+    }
+
+    if(result===a.word) correct++;
+  });
+
+  document.getElementById("score").textContent=correct;
+  const msg=document.getElementById("message");
+
+  if(correct===answers.length) {
+    msg.textContent="🎉 Hebat! Semua jawaban benar!";
+    msg.style.color="green";
+  } else {
+    msg.textContent=`Kamu berhasil menjawab ${correct} dari ${answers.length} kata. Coba lagi!`;
+    msg.style.color="#6256d9";
+  }
+}
+
+function resetGame() {
+  document.querySelectorAll(".cell input").forEach(input=>{
+    input.value="";
+  });
+
+  document.getElementById("score").textContent="0";
+  document.getElementById("message").textContent="";
+}
+</script>
+
+</body>
+</html>
